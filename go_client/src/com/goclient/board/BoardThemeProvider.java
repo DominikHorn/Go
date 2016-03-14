@@ -6,7 +6,7 @@ public class BoardThemeProvider {
 	public String getTileForBoardTheme(String boardTheme) {
 		switch (boardTheme) {
 		case BOARD_THEME_DEFAULT:
-			return "
+			return "";
 		default:
 			return null;
 		}
