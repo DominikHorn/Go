@@ -33,6 +33,9 @@ public class ClientMain extends BasicGame {
 
 	public ClientMain(String gamename) {
 		super(gamename);
+
+		this.blackStones = new ArrayList<>();
+		this.whiteStones = new ArrayList<>();
 	}
 
 	@Override
@@ -44,6 +47,14 @@ public class ClientMain extends BasicGame {
 			for (int x = SCREEN_WIDTH / 11; x < SCREEN_WIDTH - 2 * (SCREEN_WIDTH / 11); x += SCREEN_WIDTH / 11)
 				this.tileImage.draw(x, y);
 
+		for (GoStone stone : this.blackStones)
+			stone.draw();
+		
+		for (GoStone stone : this.whiteStones)
+			stone.draw();
+		
+
+		// Draw last
 		if (this.currentStone != null)
 			this.currentStone.draw();
 	}
@@ -71,6 +82,14 @@ public class ClientMain extends BasicGame {
 
 	public void mousePressed(int button, int x, int y) {
 		System.out.println("mousePressed(" + button + ", " + x + ", " + y + ");");
+
+		// Place new Stone
+		if (this.blacksTurn)
+			this.blackStones.add((BlackStone) this.currentStone);
+		else
+			this.whiteStones.add((WhiteStone) this.currentStone);
+
+		// Toggle turns
 		this.blacksTurn = !this.blacksTurn;
 		this.currentStone = null;
 	}

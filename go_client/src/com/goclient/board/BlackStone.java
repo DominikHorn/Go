@@ -1,7 +1,5 @@
 package com.goclient.board;
 
-import org.newdawn.slick.*;
-
 import com.goclient.main.*;
 
 public class BlackStone extends GoStone {

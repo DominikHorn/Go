@@ -1,7 +1,5 @@
 package com.goclient.board;
 
-import org.newdawn.slick.*;
-
 public abstract class GoStone {
 	private int x;
 	private int y;
