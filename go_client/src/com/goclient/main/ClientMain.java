@@ -3,13 +3,16 @@ package com.goclient.main;
 import java.util.*;
 
 import org.newdawn.slick.*;
+import org.newdawn.slick.geom.Point;
 
 import com.goclient.board.*;
 
 public class ClientMain extends BasicGame {
+	public static final int BOARD_SIZE = 9;
+	public static final int TILE_SIZE = 72;
 	public static final String GAME_TITLE = "Go Game";
-	public static final int SCREEN_WIDTH = 800;
-	public static final int SCREEN_HEIGHT = 800;
+	public static final int SCREEN_WIDTH = TILE_SIZE * (BOARD_SIZE + 2);
+	public static final int SCREEN_HEIGHT = SCREEN_WIDTH;
 	public static AppGameContainer appgc;
 
 	private Image tileImage;
@@ -43,16 +46,17 @@ public class ClientMain extends BasicGame {
 		// Draw background
 		g.setColor(new Color(237, 191, 64));
 		g.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-		for (int y = SCREEN_HEIGHT / 11; y < SCREEN_HEIGHT - 2 * (SCREEN_HEIGHT / 11); y += SCREEN_HEIGHT / 11)
-			for (int x = SCREEN_WIDTH / 11; x < SCREEN_WIDTH - 2 * (SCREEN_WIDTH / 11); x += SCREEN_WIDTH / 11)
+		for (int y = SCREEN_HEIGHT / (BOARD_SIZE + 2); y <= SCREEN_HEIGHT
+				- 2 * (SCREEN_HEIGHT / (BOARD_SIZE + 2)); y += SCREEN_HEIGHT / (BOARD_SIZE + 2))
+			for (int x = SCREEN_WIDTH / (BOARD_SIZE + 2); x <= SCREEN_WIDTH
+					- 2 * (SCREEN_WIDTH / (BOARD_SIZE + 2)); x += SCREEN_WIDTH / (BOARD_SIZE + 2))
 				this.tileImage.draw(x, y);
 
 		for (GoStone stone : this.blackStones)
 			stone.draw();
-		
+
 		for (GoStone stone : this.whiteStones)
 			stone.draw();
-		
 
 		// Draw last
 		if (this.currentStone != null)
@@ -75,14 +79,13 @@ public class ClientMain extends BasicGame {
 	/** Mouse listener methods */
 	public void mouseMoved(int oldx, int oldy, int newx, int newy) {
 		if (this.currentStone != null) {
-			this.currentStone.setX(newx - this.tileImage.getWidth() / 2);
-			this.currentStone.setY(newy - this.tileImage.getHeight() / 2);
+			Point newPosition = getGridAlignedCoordinates(newx, newy);
+			this.currentStone.setX((int) newPosition.getX());
+			this.currentStone.setY((int) newPosition.getY());
 		}
 	}
 
 	public void mousePressed(int button, int x, int y) {
-		System.out.println("mousePressed(" + button + ", " + x + ", " + y + ");");
-
 		// Place new Stone
 		if (this.blacksTurn)
 			this.blackStones.add((BlackStone) this.currentStone);
@@ -106,13 +109,31 @@ public class ClientMain extends BasicGame {
 	}
 
 	private void makeNewStone(GameContainer gc) {
-		int stoneX = gc.getInput().getMouseX() - this.tileImage.getWidth() / 2;
-		int stoneY = gc.getInput().getMouseY() - this.tileImage.getHeight() / 2;
+		Point newPosition = getGridAlignedCoordinates(gc.getInput().getMouseX(), gc.getInput().getMouseY());
 		if (this.currentStone == null) {
 			if (this.blacksTurn)
-				this.currentStone = new BlackStone(stoneX, stoneY);
+				this.currentStone = new BlackStone((int) newPosition.getX(), (int) newPosition.getY());
 			else
-				this.currentStone = new WhiteStone(stoneX, stoneY);
+				this.currentStone = new WhiteStone((int) newPosition.getX(), (int) newPosition.getY());
 		}
+	}
+
+	private Point getGridAlignedCoordinates(int x, int y) {
+		x -= this.tileImage.getWidth() / 2;
+		y -= this.tileImage.getHeight() / 2;
+		int newX = ((x / (SCREEN_WIDTH / (BOARD_SIZE + 2))) * (SCREEN_WIDTH / (BOARD_SIZE + 2)))
+				+ (SCREEN_WIDTH / (BOARD_SIZE + 2));
+		int newY = ((y / (SCREEN_HEIGHT / (BOARD_SIZE + 2))) * (SCREEN_HEIGHT / (BOARD_SIZE + 2)))
+				+ (SCREEN_HEIGHT / (BOARD_SIZE + 2));
+		newX -= this.tileImage.getWidth() / 2;
+		newY -= this.tileImage.getHeight() / 2;
+
+		// Limit values on each axis to a maximum
+		if (newX > SCREEN_WIDTH - 1.5 * TILE_SIZE)
+			newX = (int) (SCREEN_WIDTH - 1.5  * TILE_SIZE);
+		if (newY > SCREEN_HEIGHT - 1.5 * TILE_SIZE)
+			newY = (int) (SCREEN_HEIGHT - 1.5 * TILE_SIZE);
+
+		return new Point(newX, newY);
 	}
 }
