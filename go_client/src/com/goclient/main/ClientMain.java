@@ -98,7 +98,8 @@ public class ClientMain extends BasicGame {
 	}
 
 	public void mouseReleased(int button, int x, int y) {
-		// Do nothing (tmp)
+		// Do nothing
+		System.out.println("tmp");
 	}
 
 	public void mouseWheelMoved(int change) {
