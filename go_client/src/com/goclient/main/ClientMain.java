@@ -18,10 +18,10 @@ public class ClientMain extends BasicGame {
 	private Image tileImage;
 	public static Image blackImage;
 	public static Image whiteImage;
-
+	public static Sound errorSound;
+	
 	private boolean blacksTurn = true;
-	private List<BlackStone> blackStones;
-	private List<WhiteStone> whiteStones;
+	private GoStone[] stones;
 	private GoStone currentStone;
 
 	public static void main(String argv[]) {
@@ -37,8 +37,7 @@ public class ClientMain extends BasicGame {
 	public ClientMain(String gamename) {
 		super(gamename);
 
-		this.blackStones = new ArrayList<>();
-		this.whiteStones = new ArrayList<>();
+		this.stones = new GoStone[BOARD_SIZE * BOARD_SIZE];
 	}
 
 	@Override
@@ -52,11 +51,10 @@ public class ClientMain extends BasicGame {
 					- 2 * (SCREEN_WIDTH / (BOARD_SIZE + 2)); x += SCREEN_WIDTH / (BOARD_SIZE + 2))
 				this.tileImage.draw(x, y);
 
-		for (GoStone stone : this.blackStones)
-			stone.draw();
-
-		for (GoStone stone : this.whiteStones)
-			stone.draw();
+		for (GoStone stone : this.stones) {
+			if (stone != null)
+				stone.draw();
+		}
 
 		// Draw last
 		if (this.currentStone != null)
@@ -68,6 +66,7 @@ public class ClientMain extends BasicGame {
 		this.tileImage = new Image("gfx/feld.png");
 		blackImage = new Image("gfx/GoBlack.png");
 		whiteImage = new Image("gfx/GoWhite.png");
+		errorSound = new Sound("sfx/error.wav");
 		gc.getInput().addMouseListener(this);
 	}
 
@@ -87,19 +86,22 @@ public class ClientMain extends BasicGame {
 
 	public void mousePressed(int button, int x, int y) {
 		// Place new Stone
-		if (this.blacksTurn)
-			this.blackStones.add((BlackStone) this.currentStone);
-		else
-			this.whiteStones.add((WhiteStone) this.currentStone);
+		int newX = this.currentStone.getX() / TILE_SIZE;
+		int newY = this.currentStone.getY() / TILE_SIZE;
 
-		// Toggle turns
-		this.blacksTurn = !this.blacksTurn;
-		this.currentStone = null;
+		if (this.stones[newX + BOARD_SIZE * newY] == null) {
+			this.stones[newX + BOARD_SIZE * newY] = this.currentStone;
+			
+			// Toggle turns
+			this.blacksTurn = !this.blacksTurn;
+			this.currentStone = null;
+		} else {
+			errorSound.play();
+		}
 	}
 
 	public void mouseReleased(int button, int x, int y) {
 		// Do nothing
-		System.out.println("tmp");
 	}
 
 	public void mouseWheelMoved(int change) {
@@ -128,7 +130,7 @@ public class ClientMain extends BasicGame {
 
 		// Limit values on each axis to a maximum
 		if (newX > SCREEN_WIDTH - 1.5 * TILE_SIZE)
-			newX = (int) (SCREEN_WIDTH - 1.5  * TILE_SIZE);
+			newX = (int) (SCREEN_WIDTH - 1.5 * TILE_SIZE);
 		if (newY > SCREEN_HEIGHT - 1.5 * TILE_SIZE)
 			newY = (int) (SCREEN_HEIGHT - 1.5 * TILE_SIZE);
 
